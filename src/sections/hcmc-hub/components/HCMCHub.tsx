@@ -13,20 +13,20 @@ export function HCMCHub({
     onViewSource
 }: HCMCHubProps) {
     return (
-        <div className="relative min-h-screen bg-stone-50 dark:bg-stone-950 overflow-x-hidden">
+        <div className="relative min-h-screen bg-gradient-to-b from-indigo-950 via-purple-950 to-stone-950 overflow-x-hidden text-stone-100">
             {/* City Hero / Spire Section */}
-            <section className="relative h-screen w-full flex flex-col items-center justify-center p-4 border-b-2 border-stone-900 bg-stone-100 dark:bg-stone-900 overflow-hidden">
+            <section className="relative h-screen w-full flex flex-col items-center justify-center p-4 border-b-2 border-fuchsia-900/30 overflow-hidden">
                 {/* Abstract Architectural Background Elements */}
-                <div className="absolute top-0 right-0 w-1/3 h-full border-l-2 border-stone-200 dark:border-stone-800 bg-[repeating-linear-gradient(45deg,transparent,transparent_20px,rgba(0,0,0,0.02)_20px,rgba(0,0,0,0.02)_40px)]" />
+                <div className="absolute top-0 right-0 w-1/3 h-full border-l border-white/5 bg-[repeating-linear-gradient(45deg,transparent,transparent_20px,rgba(255,255,255,0.03)_20px,rgba(255,255,255,0.03)_40px)]" />
 
                 <div className="relative z-10 text-center">
-                    <div className="inline-block bg-fuchsia-400 text-stone-900 border-2 border-stone-900 px-4 py-1 font-mono font-black text-sm uppercase tracking-widest mb-4 shadow-[4px_4px_0px_0px_rgba(28,25,23,1)]">
+                    <div className="inline-block bg-fuchsia-500 text-white border border-fuchsia-400 px-4 py-1 font-mono font-black text-sm uppercase tracking-widest mb-4 shadow-[0_0_15px_rgba(217,70,239,0.5)]">
                         {city.skyscraper} SPIRE
                     </div>
-                    <h1 className="text-7xl md:text-9xl font-heading font-black text-stone-900 dark:text-stone-100 uppercase tracking-tighter leading-none mb-4 drop-shadow-[8px_8px_0px_rgba(163,230,53,1)]">
+                    <h1 className="text-7xl md:text-9xl font-heading font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-stone-400 uppercase tracking-tighter leading-none mb-4 drop-shadow-[0_0_25px_rgba(168,85,247,0.5)]">
                         {city.name}
                     </h1>
-                    <p className="max-w-md mx-auto text-lg font-bold text-stone-500 uppercase tracking-tight">
+                    <p className="max-w-md mx-auto text-lg font-bold text-fuchsia-200 uppercase tracking-tight shadow-black drop-shadow-md">
                         Descending through the floors of Vietnam's React development market.
                     </p>
                 </div>
