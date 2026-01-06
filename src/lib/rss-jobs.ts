@@ -58,8 +58,17 @@ function extractCompanyAndRole(rawTitle: string): { company: string; title: stri
         }
     }
 
+    // Fallback: try "Role - Company" or "Role | Company" patterns
+    const dashMatch = title.match(/^(.*?)\s+[-|•|\|]\s+(.*?)$/)
+    if (dashMatch) {
+        return {
+            company: dashMatch[2].trim(),
+            title: dashMatch[1].trim()
+        }
+    }
+
     return {
-        company: 'LinkedIn',
+        company: 'Unknown',
         title
     }
 }
@@ -77,12 +86,41 @@ function normalizeLocation(candidate: string): string {
         .slice(0, 48)
 }
 
+function isLikelyItviecJobUrl(url: string): boolean {
+    try {
+        const u = new URL(url)
+        if (u.hostname !== 'itviec.com') return false
+        if (!u.pathname.startsWith('/it-jobs/')) return false
+
+        // Job pages tend to end with a numeric ID suffix (e.g. "...-5235").
+        return /-\d{3,6}$/.test(u.pathname)
+    } catch {
+        return false
+    }
+}
+
+function inferPlatformId(feedUrl: string): Job['platformId'] {
+    try {
+        const u = new URL(feedUrl)
+        if (u.hostname.includes('rss.app')) {
+            // Best-effort: infer from common sources in feed URLs.
+            // ITViec RSS.app feeds often point at itviec.com in <channel><link>.
+            return 'linkedin'
+        }
+    } catch {
+        // ignore
+    }
+
+    return 'linkedin'
+}
+
 export async function fetchTopJobsFromRssFeed(params: {
     feedUrl: string
     city: City
     maxJobs?: number
+    platformId?: Job['platformId']
 }): Promise<Job[]> {
-    const { feedUrl, city, maxJobs = city.totalFloors } = params
+    const { feedUrl, city, maxJobs = city.totalFloors, platformId = inferPlatformId(feedUrl) } = params
 
     // Note: RSS.app may not send permissive CORS headers in all environments.
     // In that case, this will throw and callers should fall back to sample data.
@@ -118,8 +156,16 @@ export async function fetchTopJobsFromRssFeed(params: {
         })
         .filter((it) => it.title && it.link)
 
+    // If this is an ITViec feed, drop non-job links (tag pages, category pages, etc.).
+    const filteredItems = feedUrl.includes('rss.app')
+        ? rawItems.filter((it) => {
+              if (it.link.includes('itviec.com')) return isLikelyItviecJobUrl(it.link)
+              return true
+          })
+        : rawItems
+
     // Sort newest first using pubDate when available.
-    rawItems.sort((a, b) => {
+    filteredItems.sort((a, b) => {
         const ta = new Date(a.pubDate).getTime()
         const tb = new Date(b.pubDate).getTime()
         if (Number.isNaN(ta) && Number.isNaN(tb)) return 0
@@ -128,7 +174,7 @@ export async function fetchTopJobsFromRssFeed(params: {
         return tb - ta
     })
 
-    const selected = rawItems.slice(0, maxJobs)
+    const selected = filteredItems.slice(0, maxJobs)
 
     return selected.map((item, idx) => {
         const parsed = extractCompanyAndRole(item.title)
@@ -143,13 +189,13 @@ export async function fetchTopJobsFromRssFeed(params: {
         const location = normalizeLocation(parsed.locationFromTitle ?? city.name)
 
         return {
-            id: `rss-${idSeed}`,
+            id: `rss-${hash}-${idx}`,
             title: parsed.title,
             company: parsed.company,
             salary: 'Competitive',
             location,
             postedDate: formatPostedDate(item.pubDate),
-            platformId: 'linkedin',
+            platformId,
             floorNumber,
             officeAttributes: {
                 vibe,

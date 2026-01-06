@@ -19,7 +19,7 @@ export default function HCMCHubPreview() {
         return fallbackJobsData.slice(0, cityData.totalFloors)
     })
 
-    const feedUrl = useMemo(() => 'https://rss.app/feeds/rIMUCIcQpqPwCe8u.xml', [])
+    const feedUrl = useMemo(() => 'https://rss.app/feeds/3NRkGwpUDJrBFayN.xml', [])
 
     useEffect(() => {
         let cancelled = false
@@ -27,11 +27,26 @@ export default function HCMCHubPreview() {
         fetchTopJobsFromRssFeed({
             feedUrl,
             city: cityData,
-            maxJobs: cityData.totalFloors
+            maxJobs: cityData.totalFloors,
+            platformId: 'itviec'
         })
             .then((liveJobs) => {
                 if (cancelled) return
-                if (liveJobs.length > 0) setJobsData(liveJobs)
+                if (liveJobs.length === 0) return
+
+                const usedUrls = new Set(liveJobs.map((j) => j.sourceUrl))
+                const padded = [
+                    ...liveJobs,
+                    ...fallbackJobsData.filter((j) => !usedUrls.has(j.sourceUrl))
+                ].slice(0, cityData.totalFloors)
+
+                // Reassign floor numbers so we always populate 81 floors.
+                const withFloors = padded.map((job, idx) => ({
+                    ...job,
+                    floorNumber: Math.max(1, cityData.totalFloors - idx)
+                }))
+
+                setJobsData(withFloors)
             })
             .catch((err) => {
                 // RSS feeds can fail in-browser due to CORS; keep sample data as fallback.
