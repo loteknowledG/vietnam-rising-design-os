@@ -278,7 +278,7 @@ export function ScreenDesignFullscreen() {
             <ShellComponent
               navigationItems={navigationItems}
               user={defaultUser}
-              onNavigate={(href) => {
+              onNavigate={(href: string) => {
                 console.log('[ShellDesign] Navigating to:', href)
                 window.location.href = href
               }}

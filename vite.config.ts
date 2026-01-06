@@ -4,9 +4,10 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react(), tailwindcss()],
-  base: '/loising-design-os/',
+  // GitHub Pages serves the app under /<repo>/, but dev should stay at /
+  base: command === 'build' ? '/loising-design-os/' : '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -15,4 +16,4 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-})
+}))

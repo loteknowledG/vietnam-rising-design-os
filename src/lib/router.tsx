@@ -1,5 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
-import { ProductPage } from '@/components/ProductPage'
+import { Navigate, createBrowserRouter } from 'react-router-dom'
 import { DataModelPage } from '@/components/DataModelPage'
 import { DesignPage } from '@/components/DesignPage'
 import { SectionsPage } from '@/components/SectionsPage'
@@ -15,7 +14,7 @@ import { PortfolioLayout } from '@/shell/PortfolioLayout'
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <ProductPage />,
+    element: <Navigate to="/hcmc" replace />,
   },
   {
     path: '/data-model',
@@ -70,4 +69,7 @@ export const router = createBrowserRouter([
     path: '/export',
     element: <ExportPage />,
   },
-])
+], {
+  // Match whatever Vite is built/served under (/, /<repo>/, etc.)
+  basename: import.meta.env.BASE_URL,
+})

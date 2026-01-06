@@ -1,6 +1,8 @@
 import data from '@/../product/sections/hcmc-hub/data.json'
 import type { Job, City, Platform } from '@/../product/sections/hcmc-hub/types'
+import { fetchTopJobsFromRssFeed } from '@/lib/rss-jobs'
 import { HCMCHub } from './components/HCMCHub'
+import { useEffect, useMemo, useState } from 'react'
 
 /**
  * HCMC Hub Preview
@@ -9,8 +11,37 @@ import { HCMCHub } from './components/HCMCHub'
 export default function HCMCHubPreview() {
     // Cast data since it's imported from JSON
     const cityData = data.city as unknown as City
-    const jobsData = data.jobs as unknown as Job[]
+    const fallbackJobsData = data.jobs as unknown as Job[]
     const platformsData = data.platforms as unknown as Platform[]
+
+    const [jobsData, setJobsData] = useState<Job[]>(() => {
+        // Keep floors capped to the building height in case sample data grows.
+        return fallbackJobsData.slice(0, cityData.totalFloors)
+    })
+
+    const feedUrl = useMemo(() => 'https://rss.app/feeds/rIMUCIcQpqPwCe8u.xml', [])
+
+    useEffect(() => {
+        let cancelled = false
+
+        fetchTopJobsFromRssFeed({
+            feedUrl,
+            city: cityData,
+            maxJobs: cityData.totalFloors
+        })
+            .then((liveJobs) => {
+                if (cancelled) return
+                if (liveJobs.length > 0) setJobsData(liveJobs)
+            })
+            .catch((err) => {
+                // RSS feeds can fail in-browser due to CORS; keep sample data as fallback.
+                console.warn('Failed to load live RSS jobs; using sample data instead.', err)
+            })
+
+        return () => {
+            cancelled = true
+        }
+    }, [feedUrl, cityData])
 
     return (
         <HCMCHub

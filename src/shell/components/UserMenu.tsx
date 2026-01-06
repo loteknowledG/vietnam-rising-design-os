@@ -1,4 +1,3 @@
-import React from 'react'
 import { User, Rocket } from 'lucide-react'
 
 interface UserMenuProps {
