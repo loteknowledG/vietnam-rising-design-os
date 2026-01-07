@@ -1,19 +1,42 @@
 import type { City, Job } from '@/../product/sections/hcmc-hub/types'
 
-const DEFAULT_VIBES = [
-    'High-Trust Product Team',
-    'Fast-Moving Startup',
-    'Enterprise Delivery',
-    'Design-Led Engineering',
-    'Async Remote-First',
-    'High-Performance Systems',
-    'Developer Experience Focus',
-    'Customer-Obsessed Squad'
-] as const
-
 function getTextContent(parent: Element, selector: string): string {
     const el = parent.querySelector(selector)
     return (el?.textContent ?? '').trim()
+}
+
+function htmlToPlainText(html: string): string {
+    const normalized = html
+        .replace(/<\s*br\s*\/?>/gi, '\n')
+        .replace(/<\s*\/\s*p\s*>/gi, '\n\n')
+        .replace(/<\s*\/\s*li\s*>/gi, '\n')
+
+    const parsed = new DOMParser().parseFromString(normalized, 'text/html')
+    const text = (parsed.body?.textContent ?? '').trim()
+
+    // Preserve newlines but normalize excessive whitespace.
+    return text
+        .replace(/\r\n/g, '\n')
+        .replace(/[\t\f\v]+/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .replace(/ {2,}/g, ' ')
+        .trim()
+}
+
+function extractRssDetails(itemEl: Element): string | undefined {
+    // Many feeds include HTML in <description> or <content:encoded>.
+    const raw =
+        getTextContent(itemEl, 'content\\:encoded') ||
+        getTextContent(itemEl, 'description') ||
+        getTextContent(itemEl, 'summary')
+
+    if (!raw) return undefined
+
+    const plain = htmlToPlainText(raw)
+    if (!plain) return undefined
+
+    // Keep it readable in-card; long content is scrollable but avoid absurd sizes.
+    return plain.length > 4000 ? `${plain.slice(0, 4000)}…` : plain
 }
 
 function stableHash(input: string): number {
@@ -151,8 +174,9 @@ export async function fetchTopJobsFromRssFeed(params: {
             const title = getTextContent(itemEl, 'title')
             const link = getTextContent(itemEl, 'link')
             const pubDate = getTextContent(itemEl, 'pubDate')
+            const details = extractRssDetails(itemEl)
 
-            return { guid, title, link, pubDate }
+            return { guid, title, link, pubDate, details }
         })
         .filter((it) => it.title && it.link)
 
@@ -180,8 +204,6 @@ export async function fetchTopJobsFromRssFeed(params: {
         const parsed = extractCompanyAndRole(item.title)
         const idSeed = item.guid || item.link || item.title
         const hash = stableHash(idSeed)
-        const vibe = DEFAULT_VIBES[hash % DEFAULT_VIBES.length]
-        const occupancy = `${70 + (hash % 29)}%`
 
         // Floors descend from top to bottom.
         const floorNumber = Math.max(1, city.totalFloors - idx)
@@ -192,16 +214,17 @@ export async function fetchTopJobsFromRssFeed(params: {
             id: `rss-${hash}-${idx}`,
             title: parsed.title,
             company: parsed.company,
-            salary: 'Competitive',
+            salary: 'See listing',
             location,
             postedDate: formatPostedDate(item.pubDate),
             platformId,
             floorNumber,
             officeAttributes: {
-                vibe,
-                occupancy
+                vibe: '',
+                occupancy: ''
             },
-            sourceUrl: item.link
+            sourceUrl: item.link,
+            details: item.details
         } satisfies Job
     })
 }

@@ -1,7 +1,7 @@
 
 export function BuildingCore() {
     return (
-        <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-full max-w-3xl pointer-events-none flex items-end justify-center perspective-[100px] mb-[-2px]">
+                <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-full max-w-3xl pointer-events-none flex items-end justify-center perspective-[100px] mb-[-2px] origin-bottom scale-y-[1.08]">
             {/* 
               Landmark 81 Structure: Asymmetrical Bundled Tubes 
               Using flex-end alignment and percentage heights to create the stepped profile accurately.

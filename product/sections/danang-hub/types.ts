@@ -31,6 +31,9 @@ export interface Job {
         occupancy: string
     }
     sourceUrl: string
+
+    /** Optional long-form job description / excerpt (plain text) */
+    details?: string
 }
 
 export interface DaNangHubProps {

@@ -53,6 +53,9 @@ export interface Job {
     officeAttributes: OfficeAttributes
     /** Direct link to the source posting */
     sourceUrl: string
+
+    /** Optional long-form job description / excerpt (plain text) */
+    details?: string
 }
 
 export interface HanoiHubProps {
