@@ -53,17 +53,35 @@ export function HanoiHub({
             </section>
 
             {/* The Ascent Container */}
-            <section className="relative px-4 pt-48">
-                <BuildingCoreHanoi />
+            <section className="relative isolate px-4 pt-48 overflow-hidden">
+                {/* Sky gradient backdrop */}
+                <div className="absolute inset-0 z-0 bg-gradient-to-b from-sky-700 via-sky-500 to-sky-200 dark:from-sky-950 dark:via-sky-900 dark:to-stone-950" />
 
-                <div className="max-w-5xl mx-auto space-y-0 pb-24">
-                    {ascendingJobs.map((job) => (
-                        <JobFloorHanoi
-                            key={job.id}
-                            job={job}
-                            onViewSource={onViewSource}
-                        />
-                    ))}
+                {/* Summit title overlay (no separate header section) */}
+                <div className="absolute top-10 left-1/2 -translate-x-1/2 z-20 text-center pointer-events-none">
+                    <div className="inline-block bg-amber-400 text-stone-900 border-2 border-stone-900 px-4 py-1 font-mono font-black text-sm uppercase tracking-widest mb-4 shadow-[4px_4px_0px_0px_rgba(28,25,23,1)]">
+                        {city.skyscraper} SUMMIT
+                    </div>
+                    <h1 className="text-6xl md:text-8xl font-heading font-black text-stone-950 dark:text-white uppercase tracking-tighter leading-none mb-2 drop-shadow-[0_2px_0_rgba(255,255,255,0.35)] dark:drop-shadow-[0_2px_0_rgba(0,0,0,0.6)]">
+                        {city.name}
+                    </h1>
+                    <p className="max-w-md mx-auto text-sm md:text-base font-bold text-stone-800/70 dark:text-stone-100/70 uppercase tracking-tight">
+                        Summit of Vietnam's capital tech scene.
+                    </p>
+                </div>
+
+                <div className="relative z-10">
+                    <BuildingCoreHanoi />
+
+                    <div className="max-w-5xl mx-auto space-y-0 pb-24">
+                        {ascendingJobs.map((job) => (
+                            <JobFloorHanoi
+                                key={job.id}
+                                job={job}
+                                onViewSource={onViewSource}
+                            />
+                        ))}
+                    </div>
                 </div>
             </section>
 
@@ -73,22 +91,6 @@ export function HanoiHub({
                 jobCount={jobs.length}
                 activeSkyscraper={city.skyscraper}
             />
-
-            {/* Summit Finish (Now at the physical top) */}
-            <section className="h-screen border-b-4 border-stone-900 bg-stone-100 dark:bg-stone-900 flex items-center justify-center overflow-hidden relative">
-                <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[repeating-linear-gradient(0deg,transparent,transparent_20px,rgba(245,158,11,0.2)_20px,rgba(245,158,11,0.2)_21px)]" />
-                <div className="text-center relative z-10">
-                    <div className="inline-block bg-amber-400 text-stone-900 border-2 border-stone-900 px-4 py-1 font-mono font-black text-sm uppercase tracking-widest mb-4 shadow-[4px_4px_0px_0px_rgba(28,25,23,1)]">
-                        {city.skyscraper} SUMMIT
-                    </div>
-                    <h1 className="text-7xl md:text-9xl font-heading font-black text-stone-900 dark:text-stone-100 uppercase tracking-tighter leading-none mb-4 drop-shadow-[8px_8px_0px_rgba(245,158,11,1)]">
-                        {city.name}
-                    </h1>
-                    <p className="max-w-md mx-auto text-lg font-bold text-stone-500 uppercase tracking-tight">
-                        Summit of Vietnam's capital tech scene.
-                    </p>
-                </div>
-            </section>
         </div>
     )
 }
