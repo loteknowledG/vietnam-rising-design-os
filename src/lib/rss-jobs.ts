@@ -137,6 +137,47 @@ function inferPlatformId(feedUrl: string): Job['platformId'] {
     return 'linkedin'
 }
 
+// CORS proxy configuration
+// After deploying to Google Cloud Functions, update this URL
+const CORS_PROXY_URL = import.meta.env.VITE_CORS_PROXY_URL || ''
+
+async function fetchWithCorsProxy(feedUrl: string): Promise<Response> {
+    // Try direct fetch first (works in dev with proper CORS or in production SSR)
+    console.log('📡 Fetching RSS feed:', feedUrl)
+    try {
+        const directRes = await fetch(feedUrl, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/rss+xml, application/xml, text/xml'
+            }
+        })
+        if (directRes.ok) {
+            console.log('✅ Direct fetch succeeded')
+            return directRes
+        }
+    } catch (error) {
+        // CORS error - fall through to proxy
+        console.log('❌ Direct fetch failed, trying CORS proxy...', error)
+    }
+
+    // Fall back to CORS proxy if configured
+    if (CORS_PROXY_URL) {
+        const proxyUrl = `${CORS_PROXY_URL}?url=${encodeURIComponent(feedUrl)}`
+        console.log('🔄 Using CORS proxy:', proxyUrl)
+        const proxyRes = await fetch(proxyUrl, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/rss+xml, application/xml, text/xml'
+            }
+        })
+        console.log('✅ CORS proxy fetch succeeded')
+        return proxyRes
+    }
+
+    // No proxy configured, re-throw the error
+    throw new Error('CORS proxy not configured. Set VITE_CORS_PROXY_URL environment variable.')
+}
+
 export async function fetchTopJobsFromRssFeed(params: {
     feedUrl: string
     city: City
@@ -145,14 +186,8 @@ export async function fetchTopJobsFromRssFeed(params: {
 }): Promise<Job[]> {
     const { feedUrl, city, maxJobs = city.totalFloors, platformId = inferPlatformId(feedUrl) } = params
 
-    // Note: RSS.app may not send permissive CORS headers in all environments.
-    // In that case, this will throw and callers should fall back to sample data.
-    const res = await fetch(feedUrl, {
-        method: 'GET',
-        headers: {
-            Accept: 'application/rss+xml, application/xml, text/xml'
-        }
-    })
+    // Fetch RSS feed with CORS proxy fallback
+    const res = await fetchWithCorsProxy(feedUrl)
 
     if (!res.ok) {
         throw new Error(`RSS fetch failed: ${res.status} ${res.statusText}`)

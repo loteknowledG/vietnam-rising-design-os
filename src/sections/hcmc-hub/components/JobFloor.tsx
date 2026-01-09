@@ -75,7 +75,7 @@ export function JobFloor({ job, onViewSource }: JobFloorProps) {
                                     </div>
                                 </div>
 
-                                <h4 className="text-xl font-heading font-black uppercase tracking-tight mb-2 leading-none">
+                                <h4 className="text-xl font-heading font-black uppercase tracking-tight mb-2 leading-none text-stone-900 dark:text-stone-100">
                                     {job.title}
                                 </h4>
 
@@ -111,7 +111,7 @@ export function JobFloor({ job, onViewSource }: JobFloorProps) {
                                     </div>
                                 </div>
 
-                                <h4 className="text-xl font-heading font-black uppercase tracking-tight mb-2 leading-none">
+                                <h4 className="text-xl font-heading font-black uppercase tracking-tight mb-2 leading-none text-stone-900 dark:text-stone-100">
                                     {job.title}
                                 </h4>
 

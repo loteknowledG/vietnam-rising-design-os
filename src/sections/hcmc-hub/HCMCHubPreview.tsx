@@ -19,24 +19,50 @@ export default function HCMCHubPreview() {
         return fallbackJobsData.slice(0, cityData.totalFloors)
     })
 
-    const feedUrl = useMemo(() => 'https://rss.app/feeds/3NRkGwpUDJrBFayN.xml', [])
+    const feedUrls = useMemo(
+        () => [
+            'https://rss.app/feeds/3NRkGwpUDJrBFayN.xml',
+            'https://rss.app/feeds/DAwks5mDooZBAfIF.xml',
+            'https://rss.app/feeds/m91YmYkroZd5nKEU.xml'
+        ],
+        []
+    )
 
     useEffect(() => {
         let cancelled = false
 
-        fetchTopJobsFromRssFeed({
-            feedUrl,
-            city: cityData,
-            maxJobs: cityData.totalFloors,
-            platformId: 'itviec'
-        })
-            .then((liveJobs) => {
+        // Fetch from multiple feeds in parallel
+        Promise.all(
+            feedUrls.map((feedUrl) =>
+                fetchTopJobsFromRssFeed({
+                    feedUrl,
+                    city: cityData,
+                    maxJobs: cityData.totalFloors,
+                    platformId: 'itviec'
+                }).catch((err) => {
+                    console.warn(`Failed to fetch from ${feedUrl}:`, err)
+                    return []
+                })
+            )
+        )
+            .then((feedResults) => {
                 if (cancelled) return
-                if (liveJobs.length === 0) return
 
-                const usedUrls = new Set(liveJobs.map((j) => j.sourceUrl))
+                // Combine all feeds and deduplicate by sourceUrl
+                const allJobs = feedResults.flat()
+                const seenUrls = new Set<string>()
+                const uniqueJobs = allJobs.filter((job) => {
+                    if (seenUrls.has(job.sourceUrl)) return false
+                    seenUrls.add(job.sourceUrl)
+                    return true
+                })
+
+                if (uniqueJobs.length === 0) return
+
+                // Pad with sample data if needed
+                const usedUrls = new Set(uniqueJobs.map((j) => j.sourceUrl))
                 const padded = [
-                    ...liveJobs,
+                    ...uniqueJobs,
                     ...fallbackJobsData.filter((j) => !usedUrls.has(j.sourceUrl))
                 ].slice(0, cityData.totalFloors)
 
@@ -56,7 +82,7 @@ export default function HCMCHubPreview() {
         return () => {
             cancelled = true
         }
-    }, [feedUrl, cityData, fallbackJobsData])
+    }, [feedUrls, cityData, fallbackJobsData])
 
     return (
         <HCMCHub
