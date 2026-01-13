@@ -36,11 +36,6 @@ export function JobFloorDaNang({ job, onViewSource }: JobFloorDaNangProps) {
             className="relative opacity-0 mb-0 group"
             style={{ minHeight: '180px' }}
         >
-            {/* Floor Number Badge */}
-            <div className="absolute -left-16 top-1/2 -translate-y-1/2 bg-cyan-400 text-stone-900 border-2 border-stone-900 px-3 py-1 font-mono font-black text-xs uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(28,25,23,1)] z-10">
-                F{job.floorNumber}
-            </div>
-
             {/* Job Card */}
             <div className="relative max-w-md w-full mx-auto hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all">
 
@@ -63,6 +58,10 @@ export function JobFloorDaNang({ job, onViewSource }: JobFloorDaNangProps) {
                                 isFlipped ? '[transform:rotateY(180deg)]' : '[transform:rotateY(0deg)]'
                             }`}
                         >
+                            {/* Floor Number Badge */}
+                            <div className="absolute -top-3 -left-3 bg-cyan-400 text-stone-900 border-2 border-stone-900 px-3 py-1 font-mono font-black text-xs uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(28,25,23,1)] z-10">
+                                FLOOR {job.floorNumber}
+                            </div>
                             {/* Platform Badge */}
                             <div className="absolute -top-3 -right-3 bg-cyan-400 text-stone-900 border-2 border-stone-900 px-3 py-1 font-mono font-bold text-[10px] uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(28,25,23,1)]">
                                 {job.platformId}
