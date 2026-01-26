@@ -20,5 +20,3 @@ pnpm dev
 If you want the scrapers to run, see the `cloud-functions` folder and the Puppeteer scripts; those are intended to be deployed to Google Cloud Run as containerized jobs.
 
 Live preview: https://loteknowledg.github.io/vietnam-rising-design-os/#/hcmc
-
-https://loteknowledg.github.io/vietnam-rising-design-os/#/hcmc
